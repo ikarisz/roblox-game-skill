@@ -8,7 +8,11 @@ A structured loop for diagnosing and fixing Roblox game bugs. Adapts to MCP Full
 
 Collect the raw error output so there is concrete diagnostic data to work with.
 
-### MCP Full
+### Antigravity StudioMCP Mode
+- Call `get_console_output(studio_id)` to read whatever errors, prints, or warnings are currently in the Studio output panel.
+- Check `get_studio_state(studio_id)` to confirm play vs. edit state.
+
+### MCP Full (Community)
 - Call `get_playtest_output` to retrieve runtime errors from the most recent playtest session.
 - If no playtest is active, fall back to `get_console_output` to read the Studio output panel.
 
@@ -33,7 +37,11 @@ Collect the raw error output so there is concrete diagnostic data to work with.
 
 Locate and read the source code surrounding the error.
 
-### MCP Full
+### Antigravity StudioMCP Mode
+- Use `script_grep(studio_id, datamodel_type, pattern)` or `script_search(studio_id, datamodel_type, query)` with keywords from the error to locate offending scripts.
+- Use `script_read(studio_id, datamodel_type, path)` to inspect the exact script source.
+
+### MCP Full (Community)
 - Use `grep_scripts` with keywords from the error (function name, variable, service) to find all relevant scripts.
 - Use `get_script_source` on each match to read the full source.
 

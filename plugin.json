@@ -1,0 +1,26 @@
+{
+  "name": "roblox-game",
+  "displayName": "Roblox Game Development Companion",
+  "version": "1.0.0",
+  "description": "Comprehensive Roblox game development companion for Antigravity — Luau expertise, Roblox Studio MCP integration, genre templates, security, and performance optimization.",
+  "author": {
+    "name": "ikarisz"
+  },
+  "repository": "https://github.com/ikarisz/roblox-game-skill",
+  "license": "MIT",
+  "keywords": [
+    "roblox",
+    "luau",
+    "roblox-studio",
+    "mcp",
+    "game-development",
+    "gamedev",
+    "antigravity"
+  ],
+  "suggestedPrompts": [
+    "Build a pet simulator with 3 zones and rebirth system",
+    "Audit my Roblox game security and RemoteEvents",
+    "Fix errors in Roblox Studio using MCP",
+    "Create an obby game with checkpoints and leaderboard"
+  ]
+}

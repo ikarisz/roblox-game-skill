@@ -9,13 +9,38 @@ Load this reference whenever performing any of the following:
 - **Debugging via Studio** — reading console output, tracing errors, applying fixes in-place
 - **Project exploration** — understanding an existing place file's architecture and script layout
 
-This reference defines how Claude detects, selects, and orchestrates MCP tools to drive Roblox Studio directly.
+This reference defines how Antigravity detects, selects, and orchestrates MCP tools to drive Roblox Studio directly.
 
 ---
 
 ## MCP Detection
 
-On every session start or when Studio interaction is requested, detect which MCP server is available by probing for characteristic tool names.
+On every session start or when Studio interaction is requested, detect which MCP server is available:
+
+### Antigravity StudioMCP Server (`Roblox_Studio`)
+
+**Detect by looking for server:** `Roblox_Studio` in available MCP servers (or tools: `execute_luau`, `search_game_tree`, `inspect_instance`, `script_read`, `list_roblox_studios`, `start_stop_play`).
+
+This is Roblox's official StudioMCP Proxy (`StudioMCP.exe`) configured in Antigravity's `mcp_config.json`.
+
+**Tool invocation in Antigravity:**
+Lazy tools are called via `call_mcp_tool`:
+```json
+{
+  "ServerName": "Roblox_Studio",
+  "ToolName": "<tool_name>",
+  "Arguments": {
+    "studio_id": "<id>",
+    "datamodel_type": "Edit",
+    ...
+  }
+}
+```
+
+**Workflow for StudioMCP:**
+1. Call `list_roblox_studios` to find running Studio instances and obtain `studio_id`.
+2. Call `get_studio_state` to check whether Studio is in Edit mode or Play mode.
+3. Every operation requires `studio_id` and `datamodel_type`: `"Edit"` during editing, or `"Client"` / `"Server"` during playtest.
 
 ### Community Server (boshyxd/robloxstudio-mcp)
 
@@ -36,6 +61,58 @@ If neither server's tools are available, operate in **Offline Mode** — generat
 ### Detection Priority
 
 If both servers are detected, prefer the **Community Server** for its broader toolset. Fall back to individual Official Server tools only when a community equivalent is unavailable or failing.
+
+---
+
+## Antigravity StudioMCP Mode (Roblox_Studio — 28 Tools)
+
+### Studio Lifecycle & Control
+
+| Tool | Purpose | Key Arguments |
+|---|---|---|
+| `list_roblox_studios` | List open Studio instances to get `studio_id` | none |
+| `get_studio_state` | Check edit/play state and available datamodel types | `studio_id` |
+| `start_stop_play` | Toggle play, run, or stop mode | `studio_id`, `mode` ("play", "run", "stop") |
+| `get_console_output` | Read Studio output / console log | `studio_id` |
+
+### Exploration & Hierarchy
+
+| Tool | Purpose | Key Arguments |
+|---|---|---|
+| `search_game_tree` | Explore instance hierarchy tree with depth limit & filters | `studio_id`, `datamodel_type`, `path?`, `max_depth?`, `instance_type?`, `keywords?` |
+| `inspect_instance` | Deep inspection of properties, attributes, and tags | `studio_id`, `datamodel_type`, `path` |
+
+### Scripts & Execution
+
+| Tool | Purpose | Key Arguments |
+|---|---|---|
+| `execute_luau` | Execute Luau code inside Studio DataModel | `studio_id`, `datamodel_type`, `code` |
+| `script_read` | Read full source code of a script | `studio_id`, `datamodel_type`, `path` |
+| `script_search` | Search for scripts by name across DataModel | `studio_id`, `datamodel_type`, `query` |
+| `script_grep` | Search script contents using pattern/regex | `studio_id`, `datamodel_type`, `pattern` |
+| `multi_edit` | Apply batch edits across scripts | `studio_id`, `datamodel_type`, `edits` |
+
+*Important for `execute_luau`: Code runs on Studio's main thread. For heavy operations (bulk edits, generation), chunk into batches (~1000 items) and yield with `task.wait()`.*
+
+### Assets & Generative 3D
+
+| Tool | Purpose | Key Arguments |
+|---|---|---|
+| `search_asset` | Search Creator Store / toolbox for assets | `category`, `query` |
+| `insert_asset` | Insert model/audio/asset into place | `studio_id`, `datamodel_type`, `asset_id`, `asset_type` |
+| `generate_mesh` | AI 3D mesh generation | prompt, parameters |
+| `generate_texture` | AI texture generation | prompt, parameters |
+| `generate_material` | AI material generation | prompt, parameters |
+| `generate_procedural_model` | Procedural model creation | parameters |
+
+### Interaction & Simulation
+
+| Tool | Purpose | Key Arguments |
+|---|---|---|
+| `character_navigation` | Move character during playtest | `studio_id`, navigation params |
+| `user_keyboard_input` | Send keyboard input to Studio | `studio_id`, keys |
+| `user_mouse_input` | Send mouse clicks and movements | `studio_id`, coords, buttons |
+| `screen_capture` | Capture viewport image for visual verification | `studio_id` |
 
 ---
 

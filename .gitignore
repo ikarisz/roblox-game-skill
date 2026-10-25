@@ -1,1 +1,9 @@
 .claude/
+.gemini/
+.agents/
+.vscode/
+.idea/
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
